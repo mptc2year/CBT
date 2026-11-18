@@ -1,0 +1,67 @@
+
+<%@ Page Language="C#" AutoEventWireup="true" CodeFile="Default.aspx.cs" Inherits="_Default" %>
+
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+"http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head runat="server">
+    <title>State Management Demo</title>
+</head>
+<body>
+    <form id="form1" runat="server">
+
+        <h2>State Management Demo</h2>
+
+        <asp:Label ID="lblName" runat="server" Text="Enter your name:"></asp:Label><br />
+
+        <asp:TextBox ID="txtName" runat="server"></asp:TextBox><br /><br />
+
+        <asp:Button ID="btnSave" runat="server" Text="Save Name" OnClick="btnSave_Click" />
+
+        <br /><br />
+
+        <asp:Label ID="lblResult" runat="server" Text=""></asp:Label><br /><br />
+
+        <asp:Button ID="btnRetrieve" runat="server" Text="Retrieve from State"
+            OnClick="btnRetrieve_Click" />
+
+    </form>
+</body>
+</html>
+
+
+protected void btnSave_Click(object sender, EventArgs e)
+{
+    string name = txtName.Text;
+
+    // 1. ViewState
+    ViewState["UserName"] = name;
+
+    // 2. Session
+    Session["UserName"] = name;
+
+    // 3. Cookies
+    HttpCookie userCookie = new HttpCookie("UserName", name);
+    userCookie.Expires = DateTime.Now.AddMinutes(10); // lasts for 10 min
+    Response.Cookies.Add(userCookie);
+
+    lblResult.Text = "Name saved in ViewState, Session, and Cookie.";
+}
+
+
+protected void btnRetrieve_Click(object sender, EventArgs e)
+{
+    string viewStateName = ViewState["UserName"] != null
+        ? ViewState["UserName"].ToString() : "N/A";
+
+    string sessionName = Session["UserName"] != null
+        ? Session["UserName"].ToString() : "N/A";
+
+    string cookieName = Request.Cookies["UserName"] != null
+        ? Request.Cookies["UserName"].Value : "N/A";
+
+    lblResult.Text = "ViewState: " + viewStateName +
+                     "<br/>Session: " + sessionName +
+                     "<br/>Cookie: " + cookieName;
+}
